@@ -1,11 +1,21 @@
-const anchor = require("@project-serum/anchor");
-const assert = require("assert");
+import * as anchor from '@project-serum/anchor';
+import { Program } from '@project-serum/anchor';
+import { NodeWallet } from '@project-serum/anchor/dist/cjs/provider';
+import { SerumMultisig } from '../target/types/serum_multisig';
+import { AccountMeta, Commitment, Connection, PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
+import { TOKEN_PROGRAM_ID, Token } from "@solana/spl-token";
+import { assert } from "chai";
 
-describe("multisig", () => {
-  // Configure the client to use the local cluster.
-  anchor.setProvider(anchor.Provider.env());
+describe('multisig', () => {
+  const commitment: Commitment = 'processed';
+  const connection = new Connection('https://rpc-mainnet-fork.dappio.xyz', { commitment, wsEndpoint: 'wss://rpc-mainnet-fork.dappio.xyz/ws' });
+  const options = anchor.Provider.defaultOptions();
+  const wallet = NodeWallet.local();
+  const provider = new anchor.Provider(connection, wallet, options);
 
-  const program = anchor.workspace.SerumMultisig;
+  anchor.setProvider(provider);
+
+  const program = anchor.workspace.SerumMultisig as Program<SerumMultisig>;
 
   it("Tests the multisig program", async () => {
     const multisig = anchor.web3.Keypair.generate();
@@ -100,6 +110,11 @@ describe("multisig", () => {
       signers: [ownerB],
     });
 
+    const setOwnersAccounts = program.instruction.setOwners.accounts({
+      multisig: multisig.publicKey,
+      multisigSigner,
+    }) as Array<AccountMeta>;
+
     // Now that we've reached the threshold, send the transactoin.
     await program.rpc.executeTransaction({
       accounts: {
@@ -107,12 +122,8 @@ describe("multisig", () => {
         multisigSigner,
         transaction: transaction.publicKey,
       },
-      remainingAccounts: program.instruction.setOwners
-        .accounts({
-          multisig: multisig.publicKey,
-          multisigSigner,
-        })
-        // Change the signer status on the vendor signer since it's signed by the program, not the client.
+      remainingAccounts: setOwnersAccounts
+      // Change the signer status on the vendor signer since it's signed by the program, not the client.
         .map((meta) =>
           meta.pubkey.equals(multisigSigner)
             ? { ...meta, isSigner: false }

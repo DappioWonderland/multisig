@@ -1,19 +1,19 @@
 [package]
-name = "serum-multisig"
-version = "0.5.0"
 description = "Created with Anchor"
 edition = "2018"
 license = "Apache-2.0"
+name = "serum-multisig"
+version = "0.5.0"
 
 [lib]
 crate-type = ["cdylib", "lib"]
 name = "serum_multisig"
 
 [features]
-no-entrypoint = []
-no-idl = []
 cpi = ["no-entrypoint"]
 default = []
+no-entrypoint = []
+no-idl = []
 
 [dependencies]
-anchor-lang = "0.14.0"
+anchor-lang = "0.18.2"

@@ -1,8 +1,11 @@
-anchor_version = "0.14.0"
+anchor_version = "0.18.2"
 
 [provider]
-cluster = "localnet"
+cluster = "https://rpc-mainnet-fork.dappio.xyz"
 wallet = "~/.config/solana/id.json"
+
+[programs.localnet]
+serum_multisig = "HVPVwfj8kHeULJAkEeER48ZMVqmRaXQd9pF1vQxVxF1u"
 
 [programs.mainnet]
 serum_multisig = "6tbPiQLgTU4ySYWyZGXbnVSAEzLc1uF8t5kJPXXgBmRP"
@@ -11,4 +14,4 @@ serum_multisig = "6tbPiQLgTU4ySYWyZGXbnVSAEzLc1uF8t5kJPXXgBmRP"
 serum_multisig = "F3Uf5F61dmht1xuNNNkk3jnzj82TY56vVjVEhZALRkN"
 
 [scripts]
-test = "mocha -t 1000000 tests/"
+test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
